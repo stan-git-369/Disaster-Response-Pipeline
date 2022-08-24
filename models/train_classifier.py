@@ -1,0 +1,143 @@
+# import packages
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+import nltk
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
+
+import re
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+from sklearn.datasets import make_multilabel_classification
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import HashingVectorizer
+import pickle
+import sys
+from sklearn.model_selection import GridSearchCV
+
+
+def load_data(data_file):
+    # read in file
+    engine = create_engine('sqlite:///InsertDatabaseName.db')
+    df = pd.read_sql(data_file, engine)
+
+    # clean data
+    df.drop_duplicates()
+
+    # load to database
+    engine = create_engine('sqlite:///InsertDatabaseName.db')
+    df.to_sql('DisasterResponse', engine,if_exists = 'replace', index=False) 
+    
+    # define features and label arrays
+    cols = df.columns.tolist()[4:]
+    X = df['message']
+    y = df[cols]
+    X = X.values
+    y = y.values
+        
+    return X, y, cols
+
+	
+def tokenize(text):
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+
+    clean_tokens = []
+    for tok in tokens:
+        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+        clean_tokens.append(clean_tok)
+   
+    clean_tokens = [w for w in clean_tokens if w not in stopwords.words("english")]
+    return clean_tokens
+
+
+def display_results(y_test, y_pred, cols):
+    # output model test results
+    for c in range(y_test.shape[1]):
+        print(c)
+        y_true = y_test[c]
+        y_pr = y_pred[c]
+        precision, recall, fscore, support = precision_recall_fscore_support(y_true, y_pr, average='weighted')
+        print('\nReport for the column ({}):\n'.format(cols[c]))
+        print('Precision: {}'.format(round(precision, 2)))
+        print('Recall: {}'.format(round(recall, 2)))
+        print('F-score: {}'.format(round(fscore, 2)))
+
+
+def build_model():
+    # text processing and model pipeline
+
+    model = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ])
+    
+# define parameters for GridSearchCV
+    parameters = {'vect__min_df': [1, 3],
+                'tfidf__use_idf': [True, False],
+                'clf__estimator__n_estimators': [10, 25],
+                'clf__estimator__min_samples_split': [2, 4]
+                 }
+
+    # create gridsearch object and return as final model pipeline
+    model_pipeline = GridSearchCV(model, param_grid=parameters)
+    
+    return model_pipeline
+    
+    
+def train(X, y, model):
+    
+    # train test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+    # train classifier
+    model = build_model()
+    model.fit(X_train, y_train)
+
+    # predict on test data
+    y_pred = model.predict(X_test)
+
+    return model, y_test, y_pred
+    
+    
+def export_model(model):
+    # Export model as a pickle file
+    # create an iterator object with write permission - model.pkl
+    with open('model_pkl', 'wb') as files:
+        pickle.dump(model, files)
+        
+
+def main():
+    data_file = sys.argv[1]
+#     data_file = 'disaster_info'
+
+    print('Loading data...\n')
+    X, y, cols = load_data(data_file)
+        
+    print('Building model...\n')
+    model = build_model()
+              
+    print('Building test and train data, training model...\n')
+    model, y_test, y_pred = train(X, y, model)
+    
+    print('Output results...\n')
+    display_results(y_test, y_pred, cols)
+    
+    print('Saving model...\n')
+    export_model(model)
+
+    print('Trained model saved!')
+
+if __name__ == '__main__':
+    main()
