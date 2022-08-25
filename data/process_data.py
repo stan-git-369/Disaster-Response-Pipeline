@@ -26,7 +26,6 @@ import sys
 from sklearn.model_selection import GridSearchCV
 
 
-
 def load_data(messages_filepath, categories_filepath):
     """
     Load data from csv-files, merge messages and categories datasets messages and categories datasets,
@@ -63,8 +62,8 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df, categories):
-     """
-     Clean dataframe by removing duplicates and nulls.
+    """
+    Clean dataframe by removing duplicates and nulls.
     
     INPUT:
     df: dataframe. Dataframe containing merged messages and categories datasets.
@@ -75,8 +74,8 @@ def clean_data(df, categories):
     # drop duplicates    
     df = df.drop_duplicates()
     # drop nan's    
-    categories.columns
     df = df.dropna(subset=categories.columns)
+    
     return df
     
 
