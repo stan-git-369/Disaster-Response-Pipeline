@@ -52,16 +52,22 @@ def load_data(messages_filepath, categories_filepath):
     for i in range(36):
         names[i] = row[i][:-2]
     category_colnames = names
+    
+    for column in categories:
+        # set each value to be the last character of the string
+        categories[column] = categories[column].astype(str).str[-1].astype(int)
+    
     # set categories as columns names in merged dataset
     categories.rename(columns=category_colnames, inplace=True)
     categories = categories.drop(columns=['key_0', 'categories', 'id'])
+    categories_names = categories.columns.tolist()
     df = df.drop(columns=['categories'])
     df = pd.concat([df, categories], axis=1)
     
-    return df, categories
+    return df, categories_names
 
 
-def clean_data(df, categories):
+def clean_data(df, categories_names):
     """
     Clean dataframe by removing duplicates and nulls.
     
@@ -74,7 +80,7 @@ def clean_data(df, categories):
     # drop duplicates    
     df = df.drop_duplicates()
     # drop nan's    
-    df = df.dropna(subset=categories.columns)
+    df = df.dropna(subset=categories_names)
     
     return df
     
@@ -97,15 +103,14 @@ def save_data(df, database_filename):
 
 def main():
     if len(sys.argv) == 4:
-
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
 
         print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
               .format(messages_filepath, categories_filepath))
-        df = load_data(messages_filepath, categories_filepath)
+        df, categories_names = load_data(messages_filepath, categories_filepath)
 
         print('Cleaning data...')
-        df = clean_data(df, categories)
+        df = clean_data(df, categories_names)
         
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_data(df, database_filepath)
