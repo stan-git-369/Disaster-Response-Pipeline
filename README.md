@@ -5,10 +5,10 @@ In this project, we will build a model to classify messages that are sent during
 
 Finally, this project contains a web app where you can input a message and get classification results.
 
-**Installation**
+**Installation:**
 This repository was written in HTML and Python , and requires the following Python packages: pandas, numpy,  nltk, flask, json, plotly, sklearn, sqlalchemy, sys, warnings, re, pickle.
 
-**Project Overview**
+**Project Overview:**
 This code is designed to iniate a web app which an emergency operators could exploit during a disaster (e.g. an earthquake or Tsunami), to classify a disaster text messages into several categories which then can be transmited to the responsible entity
 
 The app built to have an ML model to categorize every message received
