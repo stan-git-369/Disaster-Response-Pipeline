@@ -29,3 +29,9 @@ Run the following commands in the project's root directory to set up your databa
 * To run ML pipeline that trains classifier and saves python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
 
 Run the following command in the app's directory to run your web app. python run.py
+
+# Acknowledgements
+Udacity for providing an amazing Data Science Nanodegree Program
+Figure Eight for providing the relevant dataset to train the model
+
+# Screenshots
