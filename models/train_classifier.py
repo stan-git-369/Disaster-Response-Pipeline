@@ -26,10 +26,21 @@ import sys
 from sklearn.model_selection import GridSearchCV
 
 
-def load_data(data_file):
+def load_data(database_filepath):
+    """
+    Load and merge datasets
+    
+    INPUT:
+         database filepath
+    
+    OUTPUT:
+        X: dataframe with messages 
+        y: dataframe with labels
+        cols: category names
+    """
     # read in file
-    engine = create_engine('sqlite:///InsertDatabaseName.db')
-    df = pd.read_sql(data_file, engine)
+    engine = create_engine('sqlite:///' + database_filepath)
+    df = pd.read_sql_table('Messages', engine)
 
     # clean data
     df.drop_duplicates()
@@ -49,6 +60,15 @@ def load_data(data_file):
 
 	
 def tokenize(text):
+    """ 
+    Normalize and tokenize unput text
+    
+    INPUT:
+         text
+    
+    OUTPUT:
+        clean_tokens: clean tokens
+    """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -62,6 +82,15 @@ def tokenize(text):
 
 
 def display_results(y_test, y_pred, cols):
+    """ 
+    display the results of trained model
+    
+    INPUT:
+         true and predicted values, categories names
+    
+    OUTPUT:
+        print precision, recall, fscore for input data
+    """
     # output model test results
     for c in range(y_test.shape[1]):
         print(c)
@@ -75,7 +104,16 @@ def display_results(y_test, y_pred, cols):
 
 
 def build_model():
-    # text processing and model pipeline
+    """ 
+    Build of text processing, model and gridsearch pipeline
+    
+    INPUT:
+         None
+    
+    OUTPUT:
+        model_pipeline
+    """
+    # 
 
     model = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -97,6 +135,19 @@ def build_model():
     
     
 def train(X, y, model):
+    """ 
+    Split input data to train and test, fit the model and predict results
+    
+    INPUT:
+         X: feature dataset
+	 y: label dataset
+	 model: model pipeline
+    
+    OUTPUT:
+        model: trained model
+	y_test: array of test labels
+	y_pred: array of predicted labels
+    """
     
     # train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
@@ -112,6 +163,15 @@ def train(X, y, model):
     
     
 def export_model(model):
+    """
+    Export model as a pickle file
+    
+    INPUT:
+         model: trained model
+	 
+    OUTPUT:
+        None
+    """
     # Export model as a pickle file
     # create an iterator object with write permission - model.pkl
     with open('model_pkl', 'wb') as files:
@@ -119,25 +179,29 @@ def export_model(model):
         
 
 def main():
-    data_file = sys.argv[1]
-#     data_file = 'disaster_info'
-
-    print('Loading data...\n')
-    X, y, cols = load_data(data_file)
+    if len(sys.argv) == 3:
+        database_filepath, model_filepath = sys.argv[1:]
+        print('Loading data...\n')
+	X, y, cols = load_data(database_filepath)
         
-    print('Building model...\n')
-    model = build_model()
+        print('Building model...\n')
+        model = build_model()
               
-    print('Building test and train data, training model...\n')
-    model, y_test, y_pred = train(X, y, model)
+        print('Building test and train data, training model...\n')
+        model, y_test, y_pred = train(X, y, model)
     
-    print('Output results...\n')
-    display_results(y_test, y_pred, cols)
+        print('Output results...\n')
+        display_results(y_test, y_pred, cols)
     
-    print('Saving model...\n')
-    export_model(model)
+        print('Saving model...\n')
+        export_model(model)
 
-    print('Trained model saved!')
+        print('Trained model saved!')
+    else:
+        print('Please provide the filepath of the disaster messages database '\
+              'as the first argument and the filepath of the pickle file to '\
+              'save the model to as the second argument. \n\nExample: python '\
+              'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
 
 if __name__ == '__main__':
     main()
