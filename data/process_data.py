@@ -4,11 +4,24 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    Load data from csv-files, merge messages and categories datasets messages and categories datasets,
+    convert categories from strings to numbers.
+    
+    INPUT:
+    messages_filepath: string. Filepath for csv file containing messages dataset.
+    categories_filepath: string. Filepath for csv file containing categories dataset.
+       
+    OUTPUT:
+    df: dataframe. Dataframe containing merged content of messages and categories datasets.
+    categories: list of categories
+    """
+    
+    # load and merge datasets
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories, how = 'inner', left_on='id', right_on='id')
-    n = categories['categories'].str.split(';', expand=True)
-    categories = categories.merge(n, left_on=categories.index, right_on=n.index)
+    # extract names of categories and convert categories from strings to numbers
     n = categories['categories'].str.split(';', expand=True)
     categories = categories.merge(n, left_on=categories.index, right_on=n.index)
     row = categories['categories'][0].split(';')
@@ -16,23 +29,47 @@ def load_data(messages_filepath, categories_filepath):
     for i in range(36):
         names[i] = row[i][:-2]
     category_colnames = names
+    # set categories as columns names in merged dataset
     categories.rename(columns=category_colnames, inplace=True)
     categories = categories.drop(columns=['key_0', 'categories', 'id'])
     df = df.drop(columns=['categories'])
     df = pd.concat([df, categories], axis=1)
+    
     return df, categories
 
 
 def clean_data(df, categories):
+     """
+     Clean dataframe by removing duplicates and nulls.
+    
+    INPUT:
+    df: dataframe. Dataframe containing merged messages and categories datasets.
+       
+    OUTPUT:
+    df: dataframe. Dataframe containing cleaned version of input dataframe.
+    """
+    # drop duplicates    
     df = df.drop_duplicates()
+    # drop nan's    
     categories.columns
     df = df.dropna(subset=categories.columns)
     return df
     
 
 def save_data(df, database_filename):
-    engine = create_engine(database_filename)
-    df.to_sql('disaster_', engine, index=False)  
+    """
+    Save dataframe into  SQLite database.
+    
+    INPUT:
+    df: dataframe. Dataframe containing cleaned version of merged message and 
+    categories data.
+    database_filename: string. Filename for output database.
+       
+    OUTPUT:
+    None
+    """
+    engine = create_engine('sqlite:///' + database_filename)
+    df.to_sql('Messages', engine, index=False, if_exists='replace')
 
 
 def main():
