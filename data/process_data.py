@@ -1,5 +1,29 @@
 import sys
 from sqlalchemy import create_engine
+import pandas as pd
+import numpy as np
+import nltk
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
+
+import re
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+from sklearn.datasets import make_multilabel_classification
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import HashingVectorizer
+import pickle
+import sys
+from sklearn.model_selection import GridSearchCV
 
 
 
