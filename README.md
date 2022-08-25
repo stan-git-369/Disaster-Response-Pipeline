@@ -36,7 +36,7 @@ Run the following command in the app's directory to run your web app. python run
 
 # Screenshots
 1. Screenshot 1: App word search Page 
-
+![alt text](https://github.com/stan-git-369/Disaster-Response-Pipeline/disaster-response-project2.png?raw=true)
 
 2.
 
