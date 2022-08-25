@@ -63,6 +63,7 @@ def load_data(messages_filepath, categories_filepath):
     categories_names = categories.columns.tolist()
     df = df.drop(columns=['categories'])
     df = pd.concat([df, categories], axis=1)
+    df['related'] = df['related'].replace(2, 1)
     
     return df, categories_names
 
