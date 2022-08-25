@@ -140,13 +140,13 @@ def train(X, y, model):
     
     INPUT:
          X: feature dataset
-	 y: label dataset
-	 model: model pipeline
+    y: label dataset
+    model: model pipeline
     
     OUTPUT:
         model: trained model
-	y_test: array of test labels
-	y_pred: array of predicted labels
+    y_test: array of test labels
+    y_pred: array of predicted labels
     """
     
     # train test split
@@ -182,7 +182,7 @@ def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n')
-	X, y, cols = load_data(database_filepath)
+        X, y, cols = load_data(database_filepath)
         
         print('Building model...\n')
         model = build_model()
