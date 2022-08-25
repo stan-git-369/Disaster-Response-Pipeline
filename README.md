@@ -31,7 +31,13 @@ Run the following commands in the project's root directory to set up your databa
 Run the following command in the app's directory to run your web app. python run.py
 
 # Acknowledgements
-Udacity for providing an amazing Data Science Nanodegree Program
-Figure Eight for providing the relevant dataset to train the model
+* Udacity for providing an amazing Data Science Nanodegree Program 
+* Figure Eight for providing the relevant dataset to train the model
 
 # Screenshots
+1. Screenshot 1: App word search Page 
+
+
+2.
+
+
