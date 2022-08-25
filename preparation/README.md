@@ -1,6 +1,6 @@
-Folder contains Preparation and Testing jupyter notebooks
+# Folder contains Preparation and Testing jupyter notebooks
 
-NOTICE: This folder is not necessary for this project to run.
+# NOTICE: This folder is not necessary for this project to run.
 
 Installation
 Must runing with Python 3 with libraries of numpy, pandas, sqlalchemy, NLTK, Sklearn and pickle.
